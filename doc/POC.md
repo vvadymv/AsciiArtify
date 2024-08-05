@@ -5,3 +5,5 @@
 3. Залогінитись за допомогою веб-браузера або консольної утиліти argocd (ім'я користувача admin)
 
 Демо з прикладом: ![Image](argocd-access.gif)
+
+Консоль argocd: ![Image](argocd-initial.png)
