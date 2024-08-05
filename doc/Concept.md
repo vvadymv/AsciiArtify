@@ -19,14 +19,56 @@
 
 
 # Кроки для відтворення тесту.
-У всіх трьох випадках сервіс розгортається за допомогою єдиного [шаблону](./hello-world.yaml)
+У всіх трьох випадках сервіс розгортається за допомогою єдиного [шаблону](../hello-world.yaml)
 
 ## 1. minikube
-
+### 1.1 Deploy:
 ```
-curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube
-./minikube start
-k get all -A ; k apply -f ./hello-world.yaml ; 
-k port-forward svc/hello-world-service 8080:80 --pod-running-timeout=10s & 
+curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && ./minikube start 
+```
+### 1.2 Тестовий сервіс:
+```
+k get all -A && k apply -f ./doc/hello-world.yaml && k get all
+k port-forward svc/hello-world-service 8081:8080 & 
+```
+### 1.3 Перевірка:
+```
+curl -v localhost:8081
+curl localhost:8081
+kubectl logs `kubectl get pods --output=name`
+```
+```
+./minikube delete
+```
+
+## 2. kind 
+### 2.1 Deploy:
+```
+[ $(uname -m) = x86_64 ] && curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.23.0/kind-linux-amd64 && chmod +x kind && ./kind create cluster --name kind-cluster
+```
+
+### 2.2 Тестовий сервіс:
+```
+k get all -A && k apply -f ./hello-world.yaml && k port-forward svc/hello-world-service 8080:8080 --pod-running-timeout=10s & 
+```
+### 2.3 Перевірка:
+```
 curl -v localhost:8080
 ```
+
+
+## 3. k3d 
+### 3.1 Deploy:
+```
+curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash && k3d cluster create k3d-cluster 
+```
+
+### 3.2 Тестовий сервіс:
+```
+k get all -A && k apply -f ./hello-world.yaml && k port-forward svc/hello-world-service 8080:80 --pod-running-timeout=10s & 
+```
+### 3.3 Перевірка:
+```
+curl -v localhost:8080
+```
+
