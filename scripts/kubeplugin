@@ -1,0 +1,39 @@
+#!/bin/sh
+
+k="/usr/local/bin/kubectl"
+
+format_top_pod() {
+  local namespace="$1"
+
+  if [ -z "$namespace" ]; then
+    usage
+    namespace="kube-system"
+    echo "No namespace provided, using kube-system \n"
+  fi
+
+  echo "Resource, Namespace, Name CPU, Memory"
+  $k top pod -n "$namespace" | tail -n +2 | while read line; do
+    name=$(echo "$line" | awk '{print $1}')
+    cpu=$(echo "$line" | awk '{print $2}')
+    mem=$(echo "$line" | awk '{print $3}')
+    echo "Pod, $namespace, $name, $cpu, $mem"
+  done
+}
+
+usage() {
+  echo "Get usage of resources for PODs (cpu and memory, based on kubectl top)\n"
+  echo "Usage: $0 [namespace]"
+  echo "  - namespace: Optional namespace to filter pods. Defaults to kube-system. \n"
+}
+
+if [ $# -gt 1 ]; then
+  echo "Too many arguments"
+  usage
+  exit 1
+fi
+
+if [ $# -eq 1 ]; then
+  namespace="$1"
+fi
+
+format_top_pod "$namespace"
